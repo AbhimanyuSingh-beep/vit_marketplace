@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}My Listings — VIT Marketplace{% endblock %}
+{% block extra_css %}
+<style>
+.profile-header { display:flex; align-items:center; gap:1.5rem; margin-bottom:2rem; padding:1.5rem; background:var(--card); border:1px solid var(--border); border-radius:16px; }
+.avatar { width:60px; height:60px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.8rem; }
+.profile-name { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800; }
+.profile-email { color:var(--muted); font-size:0.9rem; }
+.listings-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1rem; }
+.listing-card { background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.listing-img { width:100%; height:150px; object-fit:cover; background:var(--surface); }
+.listing-no-img { width:100%; height:150px; background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:2.5rem; }
+.listing-info { padding:0.8rem; }
+.listing-title { font-weight:700; font-size:0.95rem; margin-bottom:0.3rem; }
+.listing-price { color:var(--accent); font-weight:700; margin-bottom:0.5rem; }
+.listing-actions { display:flex; gap:0.4rem; flex-wrap:wrap; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="profile-header">
+  <div class="avatar">🎓</div>
+  <div>
+    <div class="profile-name">{{ current_user.name }}</div>
+    <div class="profile-email">{{ current_user.email }}</div>
+    <div style="margin-top:0.3rem;">
+      <span class="badge badge-active">{{ items|selectattr('sold','equalto',false)|list|length }} Active</span>
+      <span class="badge badge-sold" style="margin-left:0.4rem;">{{ items|selectattr('sold','equalto',true)|list|length }} Sold</span>
+    </div>
+  </div>
+</div>
+
+<h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:1rem;">My Listings</h3>
+
+{% if items %}
+<div class="listings-grid">
+  {% for item in items %}
+  <div class="listing-card">
+    {% if item.image != 'no-image.png' %}
+      <img src="/static/uploads/{{ item.image }}" class="listing-img" alt="{{ item.title }}"/>
+    {% else %}
+      <div class="listing-no-img">📦</div>
+    {% endif %}
+    <div class="listing-info">
+      <div class="listing-title">{{ item.title }}</div>
+      <div class="listing-price">₹{{ "%.0f"|format(item.price) }}</div>
+      {% if item.sold %}
+        <span class="badge badge-sold">Sold</span>
+      {% else %}
+        <span class="badge badge-active">Active</span>
+      {% endif %}
+      <div class="listing-actions" style="margin-top:0.6rem;">
+        <a href="/item/{{ item.id }}" class="btn btn-outline" style="font-size:0.8rem;padding:0.3rem 0.7rem;">View</a>
+        {% if not item.sold %}
+          <a href="/mark_sold/{{ item.id }}" class="btn btn-outline" style="font-size:0.8rem;padding:0.3rem 0.7rem;">✅ Sold</a>
+        {% endif %}
+        <a href="/delete/{{ item.id }}" class="btn btn-danger" style="font-size:0.8rem;padding:0.3rem 0.7rem;"
+           onclick="return confirm('Delete?')">🗑</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div style="text-align:center;padding:3rem;color:var(--muted);">
+  <div style="font-size:3rem;margin-bottom:1rem;">📭</div>
+  <p>No listings yet</p>
+  <a href="/sell" class="btn btn-primary" style="margin-top:1rem;">+ Post your first item</a>
+</div>
+{% endif %}
+{% endblock %}

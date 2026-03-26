@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Chat with {{ other_user.name }}{% endblock %}
+{% block extra_css %}
+<style>
+.chat-container { max-width:680px; margin:0 auto; }
+.chat-header { display:flex; align-items:center; gap:1rem; padding:1rem 1.2rem; background:var(--card); border:1px solid var(--border); border-radius:12px 12px 0 0; }
+.chat-avatar { width:44px; height:44px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.3rem; }
+.chat-name { font-weight:700; }
+.chat-status { color:var(--muted); font-size:0.8rem; }
+.chat-messages { height:420px; overflow-y:auto; padding:1.2rem; background:var(--surface); border-left:1px solid var(--border); border-right:1px solid var(--border); display:flex; flex-direction:column; gap:0.8rem; }
+.msg { display:flex; flex-direction:column; max-width:75%; }
+.msg.mine { align-self:flex-end; align-items:flex-end; }
+.msg.theirs { align-self:flex-start; align-items:flex-start; }
+.msg-bubble { padding:0.6rem 1rem; border-radius:18px; font-size:0.93rem; line-height:1.5; }
+.msg.mine .msg-bubble { background:var(--accent); color:#000; border-bottom-right-radius:4px; }
+.msg.theirs .msg-bubble { background:var(--card); border:1px solid var(--border); border-bottom-left-radius:4px; }
+.msg-time { font-size:0.72rem; color:var(--muted); margin-top:0.2rem; }
+.msg-sender { font-size:0.75rem; color:var(--muted); margin-bottom:0.2rem; }
+.chat-input { display:flex; gap:0.5rem; padding:0.8rem; background:var(--card); border:1px solid var(--border); border-radius:0 0 12px 12px; }
+.chat-input input { flex:1; padding:0.65rem 1rem; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:0.95rem; }
+.chat-input input:focus { outline:none; border-color:var(--accent); }
+</style>
+{% endblock %}
+{% block content %}
+<div class="chat-container">
+  <div class="chat-header">
+    <div class="chat-avatar">🎓</div>
+    <div>
+      <div class="chat-name">{{ other_user.name }}</div>
+      <div class="chat-status">{{ other_user.email }}</div>
+    </div>
+  </div>
+
+  <div class="chat-messages" id="messages">
+    {% for msg in messages %}
+    <div class="msg {% if msg.sender_id == current_user.id %}mine{% else %}theirs{% endif %}">
+      {% if msg.sender_id != current_user.id %}
+        <div class="msg-sender">{{ msg.sender.name }}</div>
+      {% endif %}
+      <div class="msg-bubble">{{ msg.content }}</div>
+      <div class="msg-time">{{ msg.timestamp.strftime('%I:%M %p') }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="chat-input">
+    <input type="text" id="msgInput" placeholder="Type a message..." autocomplete="off"/>
+    <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
+<script>
+const socket = io();
+const room = "{{ room }}";
+const myName = "{{ current_user.name }}";
+
+socket.emit('join', { room: room });
+
+function scrollBottom() {
+  const msgs = document.getElementById('messages');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+scrollBottom();
+
+function sendMessage() {
+  const input = document.getElementById('msgInput');
+  const text = input.value.trim();
+  if (!text) return;
+  socket.emit('message', { room: room, message: text });
+  input.value = '';
+}
+
+document.getElementById('msgInput').addEventListener('keypress', e => {
+  if (e.key === 'Enter') sendMessage();
+});
+
+socket.on('message', data => {
+  const msgs = document.getElementById('messages');
+  const isMe = data.sender === myName;
+  const div = document.createElement('div');
+  div.className = 'msg ' + (isMe ? 'mine' : 'theirs');
+  div.innerHTML = `
+    ${!isMe ? `<div class="msg-sender">${data.sender}</div>` : ''}
+    <div class="msg-bubble">${data.message}</div>
+    <div class="msg-time">${data.time}</div>
+  `;
+  msgs.appendChild(div);
+  scrollBottom();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Sell an Item — VIT Marketplace{% endblock %}
+{% block content %}
+<div style="max-width:560px;margin:0 auto;">
+  <h2 class="page-title">List an Item 📦</h2>
+  <p class="page-subtitle">Fill in the details and find a buyer fast!</p>
+
+  <div class="card" style="padding:2rem;">
+    <form method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label>Item Title</label>
+        <input type="text" name="title" placeholder="e.g. Engineering Maths Textbook" required/>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description" placeholder="Condition, edition, any details..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label>Price (₹)</label>
+        <input type="number" name="price" placeholder="500" min="0" step="1" required/>
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select name="category" required>
+          <option value="">Select category...</option>
+          {% for cat in categories %}
+            <option value="{{ cat }}">{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Photo (optional)</label>
+        <input type="file" name="image" accept="image/*" style="padding:0.5rem;"/>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:0.8rem;font-size:1rem;">
+        🚀 Post Listing
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
