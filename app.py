@@ -264,10 +264,12 @@ def handle_message(data):
     }, room=data['room'])
 
 # ── Start the App ──────────────────────────────────────────
-if __name__ == '__main__':
-    with app.app_context():
+ with app.app_context():
         db.create_all()  # Creates all database tables if they don't exist
         # Create uploads folder if missing
         os.makedirs('static/uploads', exist_ok=True)
+
+if __name__ == '__main__':
+   
     print("🚀 VIT Marketplace running at http://127.0.0.1:5000")
     socketio.run(app, debug=True)
