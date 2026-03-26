@@ -268,7 +268,7 @@ def handle_message(data):
     }, room=data['room'])
 
 # ── Start the App ──────────────────────────────────────────
- with app.app_context():
+with app.app_context():
         db.create_all()  # Creates all database tables if they don't exist
         # Create uploads folder if missing
         os.makedirs('static/uploads', exist_ok=True)
