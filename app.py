@@ -1,10 +1,13 @@
+import eventlet
+eventlet.monkey_patch()
+import os
+
 # ============================================================
 # VIT Marketplace - Main Flask Application
 # This file is the BRAIN of the entire app.
 # It handles all routes (pages), database, login, and chat.
 # ============================================================
-import eventlet
-eventlet.monkey_patch()
+
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
